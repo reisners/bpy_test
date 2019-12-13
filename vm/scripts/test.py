@@ -1,7 +1,7 @@
 FREECADPATH = '/usr/lib/freecad/lib' # path to your FreeCAD.so or FreeCAD.dll file
 import sys
 sys.path.append(FREECADPATH)
-import bpy
+import bpy,bmesh
 
 def import_fcstd(filename):
     try:
@@ -21,17 +21,16 @@ def import_fcstd(filename):
         doc = FreeCAD.open(filename)
         objects = doc.Objects
         for ob in objects:
-            if ob.Type[:4] == 'Part':
+            print ("found "+ob.TypeId+" "+ob.Name)
+            if ob.TypeId[:12] == 'PartDesign::':
                 shape = ob.Shape
                 if shape.Faces:
-                    mesh = bpy.Mesh.New()
+                    mesh = bpy.data.meshes.new("my_mesh")
                     rawdata = shape.tessellate(1)
-                    for v in rawdata[0]:
-                        mesh.verts.append((v.x,v.y,v.z))
-                    for f in rawdata[1]:
-                        mesh.faces.append.append(f)
-                    scene.objects.new(mesh,ob.Name)
-
+                    mesh.from_pydata(rawdata[0], [], rawdata[1])
+                    obj = bpy.data.objects.new("my_obj", mesh)
+                    bpy.context.collection.objects.link(obj)
+                    print ( ob.Name + " -> "+str(len(rawdata[0]))+" vertices, " + str(len(rawdata[1]))+ " faces processed\n" )
 def main():
     filename=sys.argv[1]
     import_fcstd(filename)

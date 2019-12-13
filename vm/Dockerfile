@@ -9,9 +9,7 @@ RUN apt update \
 	&& apt install -y python3.6 \
 	&& add-apt-repository -y ppa:freecad-maintainers/freecad-stable \
 	&& apt install -y freecad-python3 \
-    && update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1 \
-	&& update-alternatives --install /usr/bin/python python /usr/bin/python3.6 3 \
-	&& update-alternatives --install /usr/bin/python python /usr/bin/python3.7 2 \
+	&& update-alternatives --install /usr/bin/python python /usr/bin/python3.7 1 \
 	&& apt install -y sudo \
 	&& /tmp/install_deps.sh
 
