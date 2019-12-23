@@ -1,0 +1,8 @@
+FROM "bpy:latest"
+
+RUN apt update \
+	&& add-apt-repository -y ppa:freecad-maintainers/freecad-stable \
+	&& apt install -y freecad-python3
+	&& ln -s /usr/share/freecad/Mod /usr/lib/freecad-python3/Mod
+
+WORKDIR /work
