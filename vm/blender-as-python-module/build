@@ -1,16 +1,8 @@
 #!/bin/bash
 
-# from https://blender.stackexchange.com/questions/117200/how-to-build-blender-as-a-python-module
+cd /blender-git/blender
 
-mkdir ./blender-git
-cd ./blender-git
-git clone https://git.blender.org/blender.git
-cd blender
-git submodule update --init --recursive
-git submodule foreach git checkout master
-git submodule foreach git pull --rebase origin master
+export BUILD_CMAKE_ARGS="-DWITH_MOD_OCEANSIM=OFF -DWITH_OIDN=OFF -DPYTHON_SITE_PACKAGES=/usr/lib/python3.7/site-packages"
 
-cd ..
-./blender/build_files/build_environment/install_deps.sh
-
-sudo make bpy
+#sudo BUILD_CMAKE_ARGS=${BUILD_CMAKE_ARGS} make bpy
+make bpy

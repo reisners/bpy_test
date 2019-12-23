@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# from https://blender.stackexchange.com/questions/117200/how-to-build-blender-as-a-python-module
+
+mkdir ./blender-git
+cd ./blender-git
+BLENDER_GIT=$PWD
+git clone https://git.blender.org/blender.git
+cd blender
+git submodule update --init --recursive
+git submodule foreach git checkout master
+git submodule foreach git pull --rebase origin master
+
+cd ..
+./blender/build_files/build_environment/install_deps.sh
