@@ -3,6 +3,7 @@ import sys
 sys.path.append(FREECADPATH)
 import bpy,bmesh
 import math
+from addon_utils import check, paths, enable
 
 def import_fcstd(filename):
     try:
@@ -23,14 +24,15 @@ def import_fcstd(filename):
         objects = doc.Objects
         for ob in objects:
             print ("found "+ob.TypeId+" "+ob.Name)
-            if ob.TypeId[:12] == 'PartDesign::':
+            if ob.TypeId == 'PartDesign::Body':
                 shape = ob.Shape
                 if shape.Faces:
                     mesh = bpy.data.meshes.new("my_mesh")
-                    rawdata = shape.tessellate(1)
+                    rawdata = shape.tessellate(0.1)
                     mesh.from_pydata(rawdata[0], [], rawdata[1])
                     obj = bpy.data.objects.new("my_obj", mesh)
                     bpy.context.collection.objects.link(obj)
+                    bpy.context.view_layer.objects.active = obj
                     print ( ob.Name + " -> "+str(len(rawdata[0]))+" vertices, " + str(len(rawdata[1]))+ " faces processed\n" )
 
 import mathutils
@@ -41,10 +43,10 @@ def rotate_and_render(output_dir):
     scene = bpy.context.scene
 
     # Create a light
-    light_data = bpy.data.lights.new('light', type='POINT')
+    light_data = bpy.data.lights.new('light', type='SUN')
     light = bpy.data.objects.new('light', light_data)
     scene.collection.objects.link(light)
-    light.location = mathutils.Vector((3, -4.2, 5))
+    light.location = mathutils.Vector((30, -42, 50))
 
     # Create the camera
     cam_data = bpy.data.cameras.new('camera')
@@ -52,7 +54,7 @@ def rotate_and_render(output_dir):
     scene.collection.objects.link(cam)
     scene.camera = cam
 
-    cam.location = mathutils.Vector((6, -3, 5))
+    cam.location = mathutils.Vector((120, -60, 100))
     cam.rotation_euler = mathutils.Euler((0.9, 0.0, 1.1))
 
     scene.render.engine = 'CYCLES'
@@ -64,9 +66,18 @@ def rotate_and_render(output_dir):
     print("rendered\n")
 
 def main():
+    enable('io_export_paper_model')
     filename=sys.argv[1]
     import_fcstd(filename)
-    rotate_and_render('/work/output/')
+    blendfile='/work/output/blender.blend'
+    bpy.ops.wm.save_as_mainfile(filepath=blendfile)
+    print("saved to "+blendfile)
+    pdffile='/work/output/paper_model.pdf'
+    #rotate_and_render('/work/output/')
+    bpy.ops.export_mesh.paper_model(
+        filepath=pdffile, 
+        page_size_preset='A3', 
+        scale=500)
 
 # This lets you import the script without running it
 if __name__=='__main__':
