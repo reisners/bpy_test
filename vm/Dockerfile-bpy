@@ -16,4 +16,4 @@ RUN /install
 ADD blender-as-python-module/build /build
 RUN /build
 
-ENV PYTHONPATH=/usr/lib/python3.6/site-packages
+ENV PYTHONPATH=/usr/lib/python3.7/site-packages
