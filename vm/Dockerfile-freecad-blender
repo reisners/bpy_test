@@ -1,8 +1,12 @@
 FROM "bpy:latest"
 
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 RUN apt update \
 	&& add-apt-repository -y ppa:freecad-maintainers/freecad-stable \
-	&& apt install -y freecad-python3
+	&& apt install -y freecad-python3 \
 	&& ln -s /usr/share/freecad/Mod /usr/lib/freecad-python3/Mod
 
 WORKDIR /work
