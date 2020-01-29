@@ -30,6 +30,12 @@ def import_fcstd(filename):
                     mesh = bpy.data.meshes.new("my_mesh")
                     rawdata = shape.tessellate(0.1)
                     mesh.from_pydata(rawdata[0], [], rawdata[1])
+
+                    # post-process mesh
+                    for edge in mesh.edges:   
+                        edge.use_seam = True
+                    #bpy.ops.uv.smart_project(mesh)
+
                     obj = bpy.data.objects.new("my_obj", mesh)
                     bpy.context.collection.objects.link(obj)
                     bpy.context.view_layer.objects.active = obj
@@ -76,8 +82,8 @@ def main():
     #rotate_and_render('/work/output/')
     bpy.ops.export_mesh.paper_model(
         filepath=pdffile, 
-        page_size_preset='A3', 
-        scale=500)
+        page_size_preset='A4', 
+        scale=100)
 
 # This lets you import the script without running it
 if __name__=='__main__':
