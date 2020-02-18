@@ -11,6 +11,11 @@ def convert_to_paper_model(filename, page_size_preset, split_index):
     except ValueError:
         print ('import error\n')
     else:
+        print(bpy.context.area.type)
+        previous_context = bpy.context.area.type
+        bpy.context.area.type = 'VIEW_3D'
+
+        print(bpy.context.area.type)
         scene = bpy.context.scene
 
         if scene.world is None:
@@ -26,6 +31,8 @@ def convert_to_paper_model(filename, page_size_preset, split_index):
 
         objs = bpy.data.objects
         objs.remove(objs["Cube"], do_unlink=True)
+
+        print(bpy.context.area.type)
 
         import Part
         doc = FreeCAD.open(filename)
@@ -47,14 +54,14 @@ def convert_to_paper_model(filename, page_size_preset, split_index):
                     print ( ob.Name + " -> "+str(len(rawdata[0]))+" vertices, " + str(len(rawdata[1]))+ " faces processed\n" )
 
         bpy.context.collection.objects.link(parent)
-        #bpy.context.view_layer.objects.link(parent)
-        #bpy.context.view_layer.update()
-        #parent.select_set(True)
+        bpy.context.view_layer.objects.active = parent
 
         for vl in scene.view_layers:
             print(vl)
             for o in vl.objects:
                 print(o)
+
+        print(bpy.context.area.type)
 
         pdffile='/work/output/paper_model.pdf'
         bpy.ops.export_mesh.paper_model(
@@ -62,6 +69,8 @@ def convert_to_paper_model(filename, page_size_preset, split_index):
             page_size_preset=page_size_preset, 
             scale=100)
 
+        #restore previous context
+        bpy.context.area.type = previous_context
 
 import io_export_paper_model
 
