@@ -11,11 +11,11 @@ def convert_to_paper_model(filename, page_size_preset, split_index):
     except ValueError:
         print ('import error\n')
     else:
-        print(bpy.context.area.type)
-        previous_context = bpy.context.area.type
-        bpy.context.area.type = 'VIEW_3D'
+        print(bpy.context)
+        print(bpy.context.screen)
+        for area in bpy.context.screen.areas:
+            print(area.type)
 
-        print(bpy.context.area.type)
         scene = bpy.context.scene
 
         if scene.world is None:
@@ -24,15 +24,8 @@ def convert_to_paper_model(filename, page_size_preset, split_index):
             new_world.use_sky_paper = True
             scene.world = new_world
 
-        for vl in scene.view_layers:
-            print(vl)
-            for o in vl.objects:
-                print(o)
-
         objs = bpy.data.objects
         objs.remove(objs["Cube"], do_unlink=True)
-
-        print(bpy.context.area.type)
 
         import Part
         doc = FreeCAD.open(filename)
@@ -50,27 +43,28 @@ def convert_to_paper_model(filename, page_size_preset, split_index):
                     mesh.from_pydata(rawdata[0], [], rawdata[1])
                     obj = bpy.data.objects.new("obj_"+ob.Name, mesh)
                     obj.parent = parent
-                    #bpy.context.collection.objects.link(obj)
+                    bpy.context.collection.objects.link(obj)
                     print ( ob.Name + " -> "+str(len(rawdata[0]))+" vertices, " + str(len(rawdata[1]))+ " faces processed\n" )
 
         bpy.context.collection.objects.link(parent)
         bpy.context.view_layer.objects.active = parent
 
-        for vl in scene.view_layers:
-            print(vl)
-            for o in vl.objects:
-                print(o)
+        bpy.ops.wm.save_as_mainfile(filepath="/work/output/paper_model.blend")
 
-        print(bpy.context.area.type)
+        for area in bpy.context.screen.areas:
+            if area.type == 'OBJECT':
+                override = bpy.context.copy()
+                override['space_data'] = area.spaces.active
+                override['region'] = area.regions[-1]
+                override['area'] = area
 
-        pdffile='/work/output/paper_model.pdf'
-        bpy.ops.export_mesh.paper_model(
-            filepath=pdffile, 
-            page_size_preset=page_size_preset, 
-            scale=100)
-
-        #restore previous context
-        bpy.context.area.type = previous_context
+                pdffile='/work/output/paper_model.pdf'
+                bpy.ops.export_mesh.paper_model(
+                    override,
+                    filepath=pdffile, 
+                    page_size_preset=page_size_preset, 
+                    scale=100)
+                break
 
 import io_export_paper_model
 
