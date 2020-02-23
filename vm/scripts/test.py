@@ -3,7 +3,9 @@ import sys
 sys.path.append(FREECADPATH)
 import math
 import bpy
+import bmesh
 from addon_utils import check, paths, enable
+from collections import defaultdict
 
 def convert_to_paper_model(filename, page_size_preset, split_index):
     try:
@@ -30,7 +32,14 @@ def convert_to_paper_model(filename, page_size_preset, split_index):
         import Part
         doc = FreeCAD.open(filename)
         
-        parent = bpy.data.objects.new("parent", None)
+        parent_mesh = bpy.data.meshes.new("mesh_parent")
+        parent_mesh.from_pydata([], [], [])
+        parent = bpy.data.objects.new("parent", parent_mesh)
+        bpy.context.collection.objects.link(parent)
+        bpy.context.view_layer.objects.active = parent
+        bpy.ops.object.mode_set(mode='EDIT')
+
+        parent_bmesh = bmesh.from_edit_mesh(parent_mesh)
 
         objects = doc.Objects
         for ob in objects:
@@ -41,30 +50,43 @@ def convert_to_paper_model(filename, page_size_preset, split_index):
                     mesh = bpy.data.meshes.new("mesh_"+ob.Name)
                     rawdata = ob.Shape.tessellate(0.1)
                     mesh.from_pydata(rawdata[0], [], rawdata[1])
-                    obj = bpy.data.objects.new("obj_"+ob.Name, mesh)
-                    obj.parent = parent
-                    bpy.context.collection.objects.link(obj)
-                    print ( ob.Name + " -> "+str(len(rawdata[0]))+" vertices, " + str(len(rawdata[1]))+ " faces processed\n" )
 
-        bpy.context.collection.objects.link(parent)
+                    obj = bpy.data.objects.new("obj_"+ob.Name, mesh)
+                    bpy.context.collection.objects.link(obj)
+                    bpy.context.view_layer.objects.active = obj
+                    print ( ob.Name + " -> "+str(len(rawdata[0]))+" vertices, " + str(len(rawdata[1]))+ " faces processed\n" )
+                    bpy.ops.object.mode_set(mode='EDIT')
+
+                    bm = bmesh.from_edit_mesh(obj.data)
+
+                    edges = defaultdict(set)
+
+                    for face in bm.faces:
+                        for edge in face.edges:
+                            edges[edge].add(face)
+
+                    boundary = [edge for edge in edges if len(edges[edge]) == 1]
+                    for edge in boundary:
+                        edge.seam = True
+
+                    bmesh.update_edit_mesh(obj.data)
+
+                    parent_bmesh.from_mesh(obj.data)
+
+        bmesh.update_edit_mesh(parent.data)
         bpy.context.view_layer.objects.active = parent
+        #bpy.ops.object.select_all(action='DESELECT') # Deselect all objects
+        parent.select_set(True)    
+
+        print ("active object type "+bpy.context.active_object.type)
 
         bpy.ops.wm.save_as_mainfile(filepath="/work/output/paper_model.blend")
 
-        for area in bpy.context.screen.areas:
-            if area.type == 'OBJECT':
-                override = bpy.context.copy()
-                override['space_data'] = area.spaces.active
-                override['region'] = area.regions[-1]
-                override['area'] = area
-
-                pdffile='/work/output/paper_model.pdf'
-                bpy.ops.export_mesh.paper_model(
-                    override,
-                    filepath=pdffile, 
-                    page_size_preset=page_size_preset, 
-                    scale=100)
-                break
+        pdffile='/work/output/paper_model.pdf'
+        bpy.ops.export_mesh.paper_model(
+            filepath=pdffile, 
+            page_size_preset=page_size_preset, 
+            scale=100)
 
 import io_export_paper_model
 
