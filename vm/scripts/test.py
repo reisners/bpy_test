@@ -18,7 +18,8 @@ def convert_to_paper_model(filename, page_size_preset, split_index):
         
         parent_bmesh, parent = create_parent()
 
-        import_freecad_model(filename, parent_bmesh)
+        doc = FreeCAD.open(filename)
+        import_freecad_model(doc, parent_bmesh)
 
         bmesh.update_edit_mesh(parent.data)
         bpy.context.view_layer.objects.active = parent
@@ -34,41 +35,41 @@ def convert_to_paper_model(filename, page_size_preset, split_index):
             page_size_preset=page_size_preset, 
             scale=100)
 
-def import_freecad_model(filename, parent_bmesh):
-    import Part
-    doc = FreeCAD.open(filename)
-
+def import_freecad_model(doc, parent_bmesh):
     objects = doc.Objects
     for ob in objects:
         print ("found "+ob.TypeId+" "+ob.Name)
         if ob.TypeId == 'Part::FeaturePython':
             if ob.Faces:
-                print ("facebinder has "+str(len(ob.Faces))+" faces")
-                mesh = bpy.data.meshes.new("mesh_"+ob.Name)
-                rawdata = ob.Shape.tessellate(0.1)
-                mesh.from_pydata(rawdata[0], [], rawdata[1])
-
-                obj = bpy.data.objects.new("obj_"+ob.Name, mesh)
-                bpy.context.collection.objects.link(obj)
-                bpy.context.view_layer.objects.active = obj
-                print ( ob.Name + " -> "+str(len(rawdata[0]))+" vertices, " + str(len(rawdata[1]))+ " faces processed\n" )
-                bpy.ops.object.mode_set(mode='EDIT')
-
-                bm = bmesh.from_edit_mesh(obj.data)
-
-                edges = defaultdict(set)
-
-                for face in bm.faces:
-                    for edge in face.edges:
-                        edges[edge].add(face)
-
-                boundary = [edge for edge in edges if len(edges[edge]) == 1]
-                for edge in boundary:
-                    edge.seam = True
-
-                bmesh.update_edit_mesh(obj.data)
-
+                obj = facebinder_to_object(ob)
                 parent_bmesh.from_mesh(obj.data)
+
+def facebinder_to_object(ob):
+    print (ob.Name+" has "+str(len(ob.Faces))+" faces")
+    mesh = bpy.data.meshes.new("mesh_"+ob.Name)
+    rawdata = ob.Shape.tessellate(0.1)
+    mesh.from_pydata(rawdata[0], [], rawdata[1])
+
+    obj = bpy.data.objects.new("obj_"+ob.Name, mesh)
+    bpy.context.collection.objects.link(obj)
+    bpy.context.view_layer.objects.active = obj
+    print ( ob.Name + " -> "+str(len(rawdata[0]))+" vertices, " + str(len(rawdata[1]))+ " faces processed\n" )
+    bpy.ops.object.mode_set(mode='EDIT')
+
+    bm = bmesh.from_edit_mesh(obj.data)
+
+    edges = defaultdict(set)
+
+    for face in bm.faces:
+        for edge in face.edges:
+            edges[edge].add(face)
+
+    boundary = [edge for edge in edges if len(edges[edge]) == 1]
+    for edge in boundary:
+        edge.seam = True
+
+    bmesh.update_edit_mesh(obj.data)
+    return obj
 
 def create_parent():
     parent_mesh = bpy.data.meshes.new("mesh_parent")
