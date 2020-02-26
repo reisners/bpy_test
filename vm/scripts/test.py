@@ -15,15 +15,21 @@ def convert_to_paper_model(filename, page_size_preset, split_index):
     else:
 
         scene = provide_scene()
-        
-        parent_bmesh, parent = create_parent()
 
         doc = FreeCAD.open(filename)
-        import_freecad_model(doc, parent_bmesh)
+#        parent_bmesh, parent = create_parent()
+#        import_freecad_model(doc, parent_bmesh)
+#        bmesh.update_edit_mesh(parent.data)
+#        bpy.context.view_layer.objects.active = parent
+#        parent.select_set(True)    
 
-        bmesh.update_edit_mesh(parent.data)
-        bpy.context.view_layer.objects.active = parent
-        parent.select_set(True)    
+        objects = import_freecad_model(doc)
+        #bpy.ops.object.select_all(action='DESELECT')
+        bpy.ops.object.select_by_type(type='MESH')
+        bpy.ops.object.join()
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.remove_doubles()
+        bpy.ops.object.mode_set(mode='OBJECT')
 
         print ("active object type "+bpy.context.active_object.type)
 
@@ -43,6 +49,10 @@ def import_freecad_model(doc, parent_bmesh):
             if ob.Faces:
                 obj = facebinder_to_object(ob)
                 parent_bmesh.from_mesh(obj.data)
+
+def import_freecad_model(doc):
+    objects = doc.Objects
+    return [facebinder_to_object(fb) for fb in objects if fb.TypeId == 'Part::FeaturePython' and fb.Faces]
 
 def facebinder_to_object(ob):
     print (ob.Name+" has "+str(len(ob.Faces))+" faces")
@@ -69,6 +79,7 @@ def facebinder_to_object(ob):
         edge.seam = True
 
     bmesh.update_edit_mesh(obj.data)
+    bpy.ops.object.mode_set(mode='OBJECT')
     return obj
 
 def create_parent():
