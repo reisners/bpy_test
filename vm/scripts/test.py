@@ -7,24 +7,41 @@ import bmesh
 from addon_utils import check, paths, enable
 from collections import defaultdict
 
-def convert_to_paper_model(filename, page_size_preset, split_index):
+def convert_to_paper_model(filename, page_size_preset):
     try:
         import FreeCAD
     except ValueError:
         print ('import error\n')
     else:
+        copyfile = "parameterized.FCStd"
+
+        properties={}
+        properties["radius"]=100.0
 
         scene = provide_scene()
 
         doc = FreeCAD.open(filename)
-#        parent_bmesh, parent = create_parent()
-#        import_freecad_model(doc, parent_bmesh)
-#        bmesh.update_edit_mesh(parent.data)
-#        bpy.context.view_layer.objects.active = parent
-#        parent.select_set(True)    
 
-        objects = import_freecad_model(doc)
-        #bpy.ops.object.select_all(action='DESELECT')
+        sheet = App.ActiveDocument.Spreadsheet
+
+        print("radius = "+str(sheet.A2))
+        print("angle = "+str(sheet.angle))
+        sheet.A2 = 5.0
+        sheet.touch()
+        sheet.recompute()
+        print("radius' = "+str(sheet.radius))
+        print("angle' = "+str(sheet.angle))
+
+        FreeCAD.ActiveDocument.recompute()
+
+        print("check radius = "+str(App.ActiveDocument.Spreadsheet.A2))
+
+        App.ActiveDocument.saveCopy(copyfile)
+        #App.ActiveDocument.close()
+        #print("closed")
+        #FreeCAD.open(copyfile)
+        #print("opened "+copyfile)
+        objects = import_freecad_model(App.ActiveDocument)
         bpy.ops.object.select_by_type(type='MESH')
         bpy.ops.object.join()
         bpy.ops.object.mode_set(mode='EDIT')
@@ -41,17 +58,11 @@ def convert_to_paper_model(filename, page_size_preset, split_index):
             page_size_preset=page_size_preset, 
             scale=100)
 
-def import_freecad_model(doc, parent_bmesh):
-    objects = doc.Objects
-    for ob in objects:
-        print ("found "+ob.TypeId+" "+ob.Name)
-        if ob.TypeId == 'Part::FeaturePython':
-            if ob.Faces:
-                obj = facebinder_to_object(ob)
-                parent_bmesh.from_mesh(obj.data)
-
 def import_freecad_model(doc):
     objects = doc.Objects
+#    for obj in objects:
+#        obj.touch() # to force recompute
+#        print (obj.Name + " touched")
     return [facebinder_to_object(fb) for fb in objects if fb.TypeId == 'Part::FeaturePython' and fb.Faces]
 
 def facebinder_to_object(ob):
@@ -114,8 +125,7 @@ def main():
     enable('io_export_paper_model')
     filename=sys.argv[1]
     page_size_preset=sys.argv[2]
-    split_index=int(sys.argv[3])
-    convert_to_paper_model(filename, page_size_preset, split_index)
+    convert_to_paper_model(filename, page_size_preset)
 
 # This lets you import the script without running it
 if __name__=='__main__':
