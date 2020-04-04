@@ -7,6 +7,11 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt update \
 	&& add-apt-repository -y ppa:freecad-maintainers/freecad-stable \
 	&& apt install -y freecad-python3 \
+	&& apt update -qq \
+    && apt install -y python3-pip \
+	&& pip3 install ptvsd \
 	&& ln -s /usr/share/freecad/Mod /usr/lib/freecad-python3/Mod
+
+EXPOSE 3000
 
 WORKDIR /work
