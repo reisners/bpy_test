@@ -7,40 +7,18 @@ import bmesh
 from addon_utils import check, paths, enable
 from collections import defaultdict
 
-def convert_to_paper_model(filename, page_size_preset):
+def convert_to_paper_model(filename, page_size_preset, overriddenProperties):
     try:
         import FreeCAD
     except ValueError:
         print ('import error\n')
     else:
-        copyfile = "parameterized.FCStd"
-
-        properties={}
-        properties["radius"]=100.0
-
         scene = provide_scene()
 
         doc = FreeCAD.open(filename)
 
-        sheet = App.ActiveDocument.Spreadsheet
+        parameterize(doc, overriddenProperties)
 
-        print("radius = "+str(sheet.A2))
-        print("angle = "+str(sheet.angle))
-        sheet.A2 = 5.0
-        sheet.touch()
-        sheet.recompute()
-        print("radius' = "+str(sheet.radius))
-        print("angle' = "+str(sheet.angle))
-
-        FreeCAD.ActiveDocument.recompute()
-
-        print("check radius = "+str(App.ActiveDocument.Spreadsheet.A2))
-
-        App.ActiveDocument.saveCopy(copyfile)
-        #App.ActiveDocument.close()
-        #print("closed")
-        #FreeCAD.open(copyfile)
-        #print("opened "+copyfile)
         objects = import_freecad_model(App.ActiveDocument)
         bpy.ops.object.select_by_type(type='MESH')
         bpy.ops.object.join()
@@ -57,6 +35,22 @@ def convert_to_paper_model(filename, page_size_preset):
             filepath=pdffile, 
             page_size_preset=page_size_preset, 
             scale=100)
+
+def parameterize(doc, overriddenProperties):
+    sheet = doc.Spreadsheet
+    sheetProperties = [property for property in sheet.PropertiesList if not "Hidden" in sheet.getTypeOfProperty(property)]
+    print("template property values:")
+    for property in sheetProperties:
+        print("  " + property + " = " + str(sheet.get(property)))
+
+    for property in overriddenProperties:
+        oldval = str(sheet.get(property))
+        sheet.set(property, str(overriddenProperties[property]))
+    sheet.recompute()
+
+    print("actual property values:")
+    for property in sheetProperties:
+        print("  " + property + " = " + str(sheet.get(property)))
 
 def import_freecad_model(doc):
     objects = doc.Objects
@@ -125,7 +119,9 @@ def main():
     enable('io_export_paper_model')
     filename=sys.argv[1]
     page_size_preset=sys.argv[2]
-    convert_to_paper_model(filename, page_size_preset)
+    overriddenProperties={}
+    overriddenProperties["radius"]=5.0
+    convert_to_paper_model(filename, page_size_preset, overriddenProperties)
 
 # This lets you import the script without running it
 if __name__=='__main__':
