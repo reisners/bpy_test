@@ -112,6 +112,15 @@ def provide_scene():
 
     return scene
 
+def parse_properties(argv):
+    properties = {property:value for (property, value) in [split_arg(arg) for arg in argv]}
+    print("parsed "+str(argv)+" -> "+str(properties))
+    return properties
+
+def split_arg(arg):
+    (property,value) = arg.split('=')
+    return (property, value)
+
 import io_export_paper_model
 
 
@@ -119,8 +128,7 @@ def main():
     enable('io_export_paper_model')
     filename=sys.argv[1]
     page_size_preset=sys.argv[2]
-    overriddenProperties={}
-    overriddenProperties["radius"]=5.0
+    overriddenProperties=parse_properties(sys.argv[3:])
     convert_to_paper_model(filename, page_size_preset, overriddenProperties)
 
 # This lets you import the script without running it
