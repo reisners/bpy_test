@@ -34,7 +34,8 @@ def convert_to_paper_model(filename, page_size_preset, overriddenProperties):
         bpy.ops.export_mesh.paper_model(
             filepath=pdffile, 
             page_size_preset=page_size_preset, 
-            scale=100)
+            scale=100,
+            output_type='TEXTURE')
 
 def parameterize(doc, overriddenProperties):
     sheet = doc.Spreadsheet
@@ -54,21 +55,28 @@ def parameterize(doc, overriddenProperties):
 
 def import_freecad_model(doc):
     objects = doc.Objects
-#    for obj in objects:
-#        obj.touch() # to force recompute
-#        print (obj.Name + " touched")
-    return [facebinder_to_object(fb) for fb in objects if fb.TypeId == 'Part::FeaturePython' and fb.Faces]
 
-def facebinder_to_object(ob):
-    print (ob.Name+" has "+str(len(ob.Faces))+" faces")
-    mesh = bpy.data.meshes.new("mesh_"+ob.Name)
-    rawdata = ob.Shape.tessellate(0.1)
+    mat = bpy.data.materials.get("texture_1")
+    if mat is None:
+        mat = bpy.data.materials.new(name="texture_1")
+        mat.use_nodes = True
+        bsdf = mat.node_tree.nodes["Principled BSDF"]
+        texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
+        texImage.image = bpy.data.images.load("textures/texture_1.png")
+        mat.node_tree.links.new(bsdf.inputs['Base Color'], texImage.outputs['Color'])
+
+    return [facebinder_to_object(fb, mat) for fb in objects if fb.TypeId == 'Part::FeaturePython' and fb.Faces]
+
+def facebinder_to_object(facebinder, mat):
+    print (facebinder.Name+" \""+facebinder.Label+"\" has "+str(len(facebinder.Faces))+" faces")
+    mesh = bpy.data.meshes.new("mesh_"+facebinder.Name)
+    rawdata = facebinder.Shape.tessellate(0.1)
     mesh.from_pydata(rawdata[0], [], rawdata[1])
 
-    obj = bpy.data.objects.new("obj_"+ob.Name, mesh)
+    obj = bpy.data.objects.new("obj_"+facebinder.Name, mesh)
     bpy.context.collection.objects.link(obj)
     bpy.context.view_layer.objects.active = obj
-    print ( ob.Name + " -> "+str(len(rawdata[0]))+" vertices, " + str(len(rawdata[1]))+ " faces processed\n" )
+    print ( facebinder.Name + " -> "+str(len(rawdata[0]))+" vertices, " + str(len(rawdata[1]))+ " faces processed\n" )
     bpy.ops.object.mode_set(mode='EDIT')
 
     bm = bmesh.from_edit_mesh(obj.data)
@@ -85,6 +93,12 @@ def facebinder_to_object(ob):
 
     bmesh.update_edit_mesh(obj.data)
     bpy.ops.object.mode_set(mode='OBJECT')
+
+    if obj.data.materials:
+        obj.data.materials[0] = mat
+    else:
+        obj.data.materials.append(mat)
+
     return obj
 
 def create_parent():
