@@ -62,7 +62,7 @@ def import_freecad_model(doc):
         mat.use_nodes = True
         bsdf = mat.node_tree.nodes["Principled BSDF"]
         texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
-        texImage.image = bpy.data.images.load("textures/texture_1.png")
+        texImage.image = bpy.data.images.load("/work/textures/texture_1.png")
         mat.node_tree.links.new(bsdf.inputs['Base Color'], texImage.outputs['Color'])
 
     return [facebinder_to_object(fb, mat) for fb in objects if fb.TypeId == 'Part::FeaturePython' and fb.Faces]
