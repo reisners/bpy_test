@@ -1,16 +1,16 @@
-FROM "bpy:latest"
+FROM "reisners/bpy:latest"
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN ln -s -f /usr/bin/python3.7 /usr/bin/python3 \
-  && ln -s -f /usr/bin/python3.7m /usr/bin/python3m \
-  && apt update \
+RUN apt update \
   && add-apt-repository -y ppa:freecad-maintainers/freecad-stable \
   && apt install -y freecad-python3 \
   && apt update -qq \
   && apt install -y python3-pip \
+  && ln -s -f python3.7 /usr/bin/python3 \
+  && ln -s -f python3.7m /usr/bin/python3m \
   && pip3 install ptvsd \
   && pip3 install pyyaml \
   && ln -s /usr/share/freecad/Mod /usr/lib/freecad-python3/Mod
