@@ -5,15 +5,21 @@ ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN apt update \
-  && add-apt-repository -y ppa:freecad-maintainers/freecad-stable \
-  && apt install -y freecad-python3 \
+  && apt install python3 \
   && apt update -qq \
   && apt install -y python3-pip \
-  && ln -s -f python3.7 /usr/bin/python3 \
-  && ln -s -f python3.7m /usr/bin/python3m \
-  && pip3 install ptvsd \
-  && pip3 install pyyaml \
+  && pip3 install --upgrade pip \
+  && apt install --reinstall python3-apt \
+  && add-apt-repository -y ppa:freecad-maintainers/freecad-stable \
+  && ln -s -f /usr/bin/python3.7 /usr/bin/python3 \
+  && ln -s -f /usr/bin/python3.7m /usr/bin/python3m \
+  && ls -l /usr/bin/python3* \
+  && apt install -y freecad-python3 \
+  && python3.7 -m pip install ptvsd \
+  && python3.7 -m pip install pyyaml \
   && ln -s /usr/share/freecad/Mod /usr/lib/freecad-python3/Mod
+
+COPY Mod/FreeCAD-Pyramids-and-Polyhedrons /usr/lib/freecad/Mod/FreeCAD-Pyramids-and-Polyhedrons
 
 EXPOSE 3000
 
