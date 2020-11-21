@@ -19,7 +19,7 @@ def convert_to_paper_model(filename, page_size_preset, overriddenProperties):
 
         parameterize(doc, overriddenProperties)
 
-        objects = import_freecad_model(App.ActiveDocument)
+        objects = import_freecad_model(doc)
         bpy.ops.object.select_by_type(type='MESH')
         bpy.ops.object.join()
         bpy.ops.object.mode_set(mode='EDIT')
