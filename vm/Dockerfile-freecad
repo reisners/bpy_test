@@ -1,0 +1,19 @@
+FROM ubuntu:18.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN apt update \
+  && apt-get install -y software-properties-common \
+  && add-apt-repository -y ppa:freecad-maintainers/freecad-stable \
+  && apt update -qq \
+  && apt install -y dnsutils \
+  && apt install -y freecad-python3 \
+  && apt install -y python3-pip \
+  && pip3 install ptvsd \
+  && pip3 install pyyaml
+
+EXPOSE 3000
+
+WORKDIR /work
