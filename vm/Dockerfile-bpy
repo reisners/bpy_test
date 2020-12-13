@@ -1,11 +1,10 @@
-FROM "ubuntu:18.04"
+FROM amrit3701/freecad-cli:latest
 
 RUN apt update \
     && apt install -y apt-utils \
     && apt install -y software-properties-common \
     && add-apt-repository -y ppa:deadsnakes/ppa \
-    && apt install -y python3.7 \
-    && update-alternatives --install /usr/bin/python python /usr/bin/python3.7 1 \
+    && update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 \
     && apt install -y sudo \
     && apt install -y git \
     && apt install -y llvm
@@ -16,4 +15,4 @@ RUN /install
 ADD blender-as-python-module/build /build
 RUN /build
 
-ENV PYTHONPATH=/usr/lib/python3.7/site-packages
+ENV PYTHONPATH=/usr/lib/python3.8/site-packages
