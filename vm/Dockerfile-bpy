@@ -1,4 +1,4 @@
-FROM amrit3701/freecad-cli:latest
+FROM reisners/freecad-cli:latest
 
 RUN apt update \
     && apt install -y apt-utils \
@@ -9,10 +9,14 @@ RUN apt update \
     && apt install -y git \
     && apt install -y llvm
 
-ADD blender-as-python-module/install /install
-RUN /install
+# \
+#    && apt install build-essential libssl-dev \
+#    && wget https://github.com/Kitware/CMake/releases/download/v3.16.5/cmake-3.16.5.tar.gz \
+#    && tar -zxvf cmake-3.16.5.tar.gz \
+#    && (cd cmake-3.16.5 && ./bootstrap && make && make install)
 
+ADD blender-as-python-module/install /install
 ADD blender-as-python-module/build /build
-RUN /build
+RUN /install && /build
 
 ENV PYTHONPATH=/usr/lib/python3.8/site-packages
