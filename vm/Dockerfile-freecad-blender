@@ -1,24 +1,10 @@
-FROM "reisners/bpy:latest"
+FROM "reisners/bpy:master"
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN apt update \
-  && apt install python3.6 \
-  && apt update -qq \
-  && apt install -y python3-pip \
-  && pip3 install --upgrade pip \
-  && apt install --reinstall python3-apt \
-  && add-apt-repository -y ppa:freecad-maintainers/freecad-stable \
-  && apt install -y freecad-python3 \
-  && apt remove python3.6 \
-  && apt install python3.7 \
-  && python3.7 -m pip install ptvsd \
-  && python3.7 -m pip install pyyaml \
-  && ln -s /usr/share/freecad/Mod /usr/lib/freecad-python3/Mod
-
-COPY Mod/PyramidsAndPolyhedrons /usr/share/freecad/Mod/PyramidsAndPolyhedrons
+COPY Mod/Pyramids-and-Polyhedrons /root/.FreeCAD/Mod/Pyramids-and-Polyhedrons
 
 EXPOSE 3000
 
