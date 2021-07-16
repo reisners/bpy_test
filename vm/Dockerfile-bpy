@@ -1,19 +1,14 @@
-FROM reisners/freecad-cli:latest
+FROM "ubuntu:20.04"
 
 RUN apt update \
     && apt install -y apt-utils \
     && apt install -y software-properties-common \
     && add-apt-repository -y ppa:deadsnakes/ppa \
+    && apt install -y python3.8 \
     && update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 \
     && apt install -y sudo \
     && apt install -y git \
     && apt install -y llvm
-
-# \
-#    && apt install build-essential libssl-dev \
-#    && wget https://github.com/Kitware/CMake/releases/download/v3.16.5/cmake-3.16.5.tar.gz \
-#    && tar -zxvf cmake-3.16.5.tar.gz \
-#    && (cd cmake-3.16.5 && ./bootstrap && make && make install)
 
 ADD blender-as-python-module/install /install
 ADD blender-as-python-module/build /build
