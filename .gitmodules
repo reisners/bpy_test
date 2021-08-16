@@ -1,0 +1,3 @@
+[submodule "vm/blender-as-python-module/blender"]
+	path = vm/blender-as-python-module/blender
+	url = https://git.blender.org/blender.git
