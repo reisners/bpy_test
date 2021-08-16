@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /blender-git/blender
+cd blender
 
 export BUILD_CMAKE_ARGS="-DWITH_MOD_OCEANSIM=OFF -DWITH_OIDN=OFF -DPYTHON_SITE_PACKAGES=/usr/lib/python3.8/site-packages"
 
