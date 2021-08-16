@@ -12,6 +12,7 @@ RUN apt update \
 
 ADD blender-as-python-module/install /install
 ADD blender-as-python-module/build /build
+ADD blender-as-python-module/blender /blender
 RUN /install && /build
 
 ENV PYTHONPATH=/usr/lib/python3.8/site-packages

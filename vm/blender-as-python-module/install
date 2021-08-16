@@ -2,5 +2,5 @@
 
 # from https://blender.stackexchange.com/questions/117200/how-to-build-blender-as-a-python-module
 
-BLENDER_GIT=$PWD
-./blender/build_files/build_environment/install_deps.sh
+cd /blender
+./build_files/build_environment/install_deps.sh
