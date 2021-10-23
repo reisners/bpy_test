@@ -6,5 +6,5 @@ export BUILD_CMAKE_ARGS="-DWITH_MEM_JEMALLOC=OFF -DWITH_MOD_OCEANSIM=OFF -DWITH_
 
 make bpy
 
-cd build_linux_bpy
+cd /build_linux_bpy
 make install
