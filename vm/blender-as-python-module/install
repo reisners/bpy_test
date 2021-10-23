@@ -3,4 +3,4 @@
 # from https://blender.stackexchange.com/questions/117200/how-to-build-blender-as-a-python-module
 
 cd /source
-./build_files/build_environment/install_deps.sh
+./blender/build_files/build_environment/install_deps.sh

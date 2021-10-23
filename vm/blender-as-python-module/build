@@ -1,10 +1,29 @@
 #!/bin/bash
 
-cd /source
+set -o xtrace
+set -o errexit
 
-export BUILD_CMAKE_ARGS="-DWITH_MEM_JEMALLOC=OFF -DWITH_MOD_OCEANSIM=OFF -DWITH_OIDN=OFF -DWITH_INSTALL_PORTABLE=OFF -DWITH_PYTHON_INSTALL=OFF -DWITH_AUDASPACE=OFF -DWITH_PYTHON_MODULE=ON -DPYTHON_SITE_PACKAGES=${PYTHON_SITE_PACKAGES}"
+cd /source/blender
+
+export BUILD_CMAKE_ARGS="\
+-DWITH_MEM_JEMALLOC=OFF \
+-DWITH_MOD_OCEANSIM=OFF \
+-DWITH_OIDN=OFF \
+-DWITH_INSTALL_PORTABLE=OFF \
+-DWITH_PYTHON_INSTALL=OFF \
+-DWITH_AUDASPACE=OFF \
+-DWITH_OPENCOLORIO=ON \
+-DWITH_PYTHON_MODULE=ON \
+-DPYTHON_SITE_PACKAGES=${PYTHON_SITE_PACKAGES}\
+"
 
 make bpy
 
-cd /build_linux_bpy
+echo +++ make bpy finished +++
+find /source -type d
+
+cd /source/build_linux_bpy
+echo running make install in /build_linux_bpy with PYTHON_SITE_PACKAGES=${PYTHON_SITE_PACKAGES}...
 make install
+
+echo +++ make install finished +++

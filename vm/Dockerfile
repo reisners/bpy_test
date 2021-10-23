@@ -10,10 +10,10 @@ RUN apt update \
     && apt install -y git \
     && apt install -y llvm
 
-COPY blender-as-python-module/install /install
-COPY blender-as-python-module/build /build
-COPY blender-as-python-module/blender /source
-RUN /install && /build
+COPY blender-as-python-module /source
 
-ARG PYTHON_SITE_PACKAGES /usr/lib/python3.8/site-packages
-ENV PYTHONPATH ${PYTHON_SITE_PACKAGES}
+ARG PYTHON_SITE_PACKAGES=/usr/lib/python3.8/site-packages
+ENV PYTHON_SITE_PACKAGES=${PYTHON_SITE_PACKAGES}
+ENV PYTHONPATH=${PYTHON_SITE_PACKAGES}
+
+RUN /source/install && /source/build
