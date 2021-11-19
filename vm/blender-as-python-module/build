@@ -16,6 +16,28 @@ export BUILD_CMAKE_ARGS="\
 -DWITH_PYTHON_MODULE=ON \
 -DPYTHON_SITE_PACKAGES=${PYTHON_SITE_PACKAGES} \
 -DPYTHON_VERSION=3.9 \
+-DWITH_CODEC_SNDFILE=ON \
+-DOPENCOLORIO_ROOT_DIR=/usr/lib/ocio \
+-DWITH_CYCLES_OSL=ON \
+-DWITH_LLVM=ON \
+-DLLVM_VERSION=9.0.1 \
+-DOSL_ROOT_DIR=/usr/lib/osl \
+-DLLVM_ROOT_DIR=/usr/lib/llvm \
+-DLLVM_STATIC=ON \
+-DWITH_OPENSUBDIV=ON \
+-DOPENSUBDIV_ROOT_DIR=/usr/lib/osd \
+-DWITH_OPENVDB=ON \
+-DWITH_OPENVDB_BLOSC=ON \
+-DOPENVDB_ROOT_DIR=/usr/lib/openvdb \
+-DBLOSC_ROOT_DIR=/usr/lib/blosc \
+-DWITH_ALEMBIC=ON \
+-DALEMBIC_ROOT_DIR=/usr/lib/alembic \
+-DWITH_USD=ON \
+-DUSD_ROOT_DIR=/usr/lib/usd \
+-DWITH_CODEC_FFMPEG=ON \
+-DFFMPEG_LIBRARIES='avformat;avcodec;avutil;avdevice;swscale;swresample;lzma;rt;theora;theoradec;theoraenc;vorbis;vorbisenc;vorbisfile;ogg;x264;openjp2' \
+-DWITH_XR_OPENXR=ON \
+-DXR_OPENXR_SDK_ROOT_DIR=/usr/lib/xr-openxr-sdk \
 "
 
 make bpy

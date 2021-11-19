@@ -2,10 +2,11 @@
 
 # from https://blender.stackexchange.com/questions/117200/how-to-build-blender-as-a-python-module
 
-apt-get install -y libopenexr-dev libopenshadinglanguage-dev libopenimageio-dev libembree-dev openexr libilmbase libilmbase-dev libopenexr openimageio-tools libopenimageio libosd
+apt-get update -y
+apt-get install -y libopenexr-dev libopenshadinglanguage-dev libopenimageio-dev openexr libilmbase libilmbase-dev libopenexr openimageio-tools libopenimageio libosd
 
 cd /source
 
 export CLANG_FORMAT_VERSION=10.0
 
-./blender/build_files/build_environment/install_deps.sh --install /usr/lib --no-build
+./blender/build_files/build_environment/install_deps.sh --install /usr/lib --no-confirm --with-embree
